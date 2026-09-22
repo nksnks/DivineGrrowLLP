@@ -30,6 +30,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 const navItems = [
   ["About", "#about"],
@@ -139,9 +140,38 @@ function AppLogo({ dark = false }: { dark?: boolean }) {
 
 function InquiryForm({ compact = false }: { compact?: boolean }) {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const form = event.currentTarget;
+    const values = Object.fromEntries(new FormData(form).entries());
+
+    if (supabase) {
+      setSubmitting(true);
+      const { error } = await supabase.from("inquiries").insert({
+        name: String(values.name ?? ""),
+        company: String(values.company ?? ""),
+        country: String(values.country ?? ""),
+        business_type: values.businessType ? String(values.businessType) : null,
+        email: String(values.email ?? ""),
+        phone: values.phone ? String(values.phone) : null,
+        product: values.product ? String(values.product) : null,
+        quantity: values.quantity ? String(values.quantity) : null,
+        message: values.message ? String(values.message) : null,
+        consented_at: new Date().toISOString(),
+      });
+
+      setSubmitting(false);
+      if (error) {
+        toast.error("We could not send your enquiry.", {
+          description: "Please try again or contact us directly by WhatsApp or email.",
+        });
+        return;
+      }
+    }
+
     setSubmitted(true);
     toast.success("Thank you — your enquiry is ready for our trade desk.", {
       description: "We will respond within one business day.",
@@ -179,8 +209,8 @@ function InquiryForm({ compact = false }: { compact?: boolean }) {
         <label className="field-label">Estimated quantity<input name="quantity" type="text" placeholder="e.g. 5 MT / month" /></label>
       </div>
       <label className="field-label mt-4">Message<textarea name="message" rows={compact ? 3 : 4} placeholder="Tell us about grade, packaging, destination, or timing." /></label>
-      <button type="submit" className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#1e3b2a] px-6 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#2a5139] active:scale-[0.98]">
-        Get a free quote <ArrowUpRight className="size-4 text-[#d9ac5d]" />
+      <button type="submit" disabled={submitting} className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#1e3b2a] px-6 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#2a5139] active:scale-[0.98] disabled:cursor-wait disabled:opacity-70">
+        {submitting ? "Sending enquiry…" : "Get a free quote"} {!submitting && <ArrowUpRight className="size-4 text-[#d9ac5d]" />}
       </button>
       <p className="mt-3 text-center text-[0.65rem] leading-5 text-[#928a78]">By submitting, you agree to be contacted about your sourcing enquiry.</p>
     </form>
