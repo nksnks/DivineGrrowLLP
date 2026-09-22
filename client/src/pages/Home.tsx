@@ -45,42 +45,42 @@ const products = [
     name: "Turmeric",
     latin: "Curcuma longa",
     description: "High-curcumin turmeric with vivid color and a clean, earthy finish.",
-    image: "/manus-storage/product-turmeric_69f5f573.jpg",
+    image: "/assets/product-turmeric.webp",
     tone: "from-[#b96e09]/85",
   },
   {
     name: "Red Chilli",
     latin: "Capsicum annuum",
     description: "Rich aroma, excellent color value, and heat levels tailored to your brief.",
-    image: "/manus-storage/product-red-chilli_6135fb93.jpg",
+    image: "/assets/product-red-chilli.webp",
     tone: "from-[#a6371b]/90",
   },
   {
     name: "Cumin Seeds",
     latin: "Cuminum cyminum",
     description: "Uniform seeds selected for bold fragrance and dependable flavor release.",
-    image: "/manus-storage/product-cumin_201999de.jpg",
+    image: "/assets/product-cumin.webp",
     tone: "from-[#76512a]/90",
   },
   {
     name: "Coriander Seeds",
     latin: "Coriandrum sativum",
     description: "Naturally aromatic, clean, and export-grade for blending and milling.",
-    image: "/manus-storage/product-coriander_94f13c32.jpg",
+    image: "/assets/product-coriander.webp",
     tone: "from-[#5d6b3f]/90",
   },
   {
     name: "Black Pepper",
     latin: "Piper nigrum",
     description: "Bold, warm peppercorns with a consistent premium processing standard.",
-    image: "/manus-storage/product-black-pepper_2246354a.jpg",
+    image: "/assets/product-black-pepper.webp",
     tone: "from-[#26352b]/95",
   },
   {
     name: "Cardamom",
     latin: "Elettaria cardamomum",
     description: "Handpicked pods chosen for freshness, aroma, and visual consistency.",
-    image: "/manus-storage/product-cardamom_9ee27118.jpg",
+    image: "/assets/product-cardamom.webp",
     tone: "from-[#486948]/90",
   },
 ];
@@ -251,7 +251,7 @@ export default function Home() {
 
       <main>
         <section className="hero-section relative min-h-[740px] overflow-hidden bg-[#173022]" aria-labelledby="hero-title">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/manus-storage/divinegrow-hero_ed2a1bd2.jpg')" }} />
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/assets/divinegrow-hero.webp')" }} />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,34,25,0.9)_0%,rgba(15,34,25,0.67)_39%,rgba(15,34,25,0.18)_75%,rgba(15,34,25,0.38)_100%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(9,23,17,0.68)_0%,transparent_32%)]" />
           <div className="container relative z-10 flex min-h-[740px] items-end pb-16 pt-32 sm:pb-20 lg:pb-24">
@@ -342,7 +342,7 @@ export default function Home() {
         <section id="quality" className="section-pad bg-[#e9e4d8]">
           <div className="container">
             <div className="grid items-center gap-14 lg:grid-cols-[1fr_1fr] lg:gap-20">
-              <div className="relative order-2 lg:order-1"><div className="overflow-hidden rounded-[1.5rem] bg-[#31513c]"><img src="/manus-storage/divinegrow-quality_4984fd27.jpg" alt="Quality inspection of Indian spices in a clean facility" className="aspect-[1.1] w-full object-cover" /></div><div className="absolute -bottom-5 -right-4 flex items-center gap-3 rounded-xl border border-[#d5c8ae] bg-[#fffaf0] px-4 py-3 shadow-lg sm:-right-7"><span className="grid size-9 place-items-center rounded-full bg-[#e0ebd8] text-[#376642]"><FlaskConical className="size-4" /></span><div><p className="text-xs font-bold text-[#274331]">Quality checkpoint</p><p className="text-[0.62rem] text-[#7e7d72]">Every order. Every time.</p></div></div></div>
+              <div className="relative order-2 lg:order-1"><div className="overflow-hidden rounded-[1.5rem] bg-[#31513c]"><img src="/assets/divinegrow-quality.webp" alt="Quality inspection of Indian spices in a clean facility" className="aspect-[1.1] w-full object-cover" /></div><div className="absolute -bottom-5 -right-4 flex items-center gap-3 rounded-xl border border-[#d5c8ae] bg-[#fffaf0] px-4 py-3 shadow-lg sm:-right-7"><span className="grid size-9 place-items-center rounded-full bg-[#e0ebd8] text-[#376642]"><FlaskConical className="size-4" /></span><div><p className="text-xs font-bold text-[#274331]">Quality checkpoint</p><p className="text-[0.62rem] text-[#7e7d72]">Every order. Every time.</p></div></div></div>
               <div className="order-1 lg:order-2"><SectionEyebrow>Quality assurance</SectionEyebrow><h2 className="section-title mt-5">Quality is our <em>promise.</em></h2><p className="mt-6 max-w-lg text-base leading-8 text-[#6b7167]">We maintain rigorous quality standards throughout sourcing, processing, packaging, and shipment so each order meets the expectation behind your brand.</p><div className="mt-9 grid gap-3 sm:grid-cols-2">{['Purity testing', 'Moisture control', 'Hygienic processing', 'Consistent grading', 'Food safety compliance', 'Export documentation'].map((item) => <div key={item} className="flex items-center gap-3 border-b border-[#d7cdb7] pb-3 text-sm font-semibold text-[#36503d]"><span className="grid size-6 place-items-center rounded-full bg-[#dce9d4] text-[#3b7048]"><Check className="size-3.5" /></span>{item}</div>)}</div><a href="#quote" className="mt-9 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[#9f6925]">Ask about documentation <ArrowUpRight className="size-4" /></a></div>
             </div>
           </div>
