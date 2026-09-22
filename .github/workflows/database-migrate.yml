@@ -1,12 +1,14 @@
-name: Migrate Supabase database
+name: Migrate Supabase Database
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - "supabase/**"
       - "scripts/deploy-supabase.sh"
       - ".github/workflows/database-migrate.yml"
+
   workflow_dispatch:
 
 permissions:
@@ -16,24 +18,27 @@ jobs:
   migrate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Enable pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Apply Supabase migrations
         run: bash scripts/deploy-supabase.sh
