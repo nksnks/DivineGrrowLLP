@@ -23,11 +23,13 @@ The anon key is safe for browser use when Row Level Security is enabled. Do not 
 
 ## What is automated
 
-`supabase/migrations/20260922220000_create_inquiries.sql` creates the `public.inquiries` table, indexes, validation checks, and a restrictive Row Level Security policy. Anonymous visitors can insert new enquiries but cannot read or modify buyer data.
+`supabase/migrations/20260922220000_create_inquiries.sql` creates the `public.inquiries` table, indexes, validation checks, and a restrictive Row Level Security policy. `supabase/migrations/20260926170000_contact_and_admin.sql` separates `contact` and `quote` submissions, creates the `admin_users` allow-list, and permits only approved Supabase Auth admins to read or update enquiries. Anonymous visitors can insert new enquiries but cannot read or modify buyer data.
 
 `scripts/deploy-supabase.sh` is safe to rerun. It links the project and executes `supabase db push --linked --yes`, so only unapplied migrations are applied.
 
 The quote form uses the public Supabase client when `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are available. If those variables are absent in a local preview, the form retains its existing confirmation-only behavior rather than failing to render.
+
+See `ADMIN_PORTAL.md` for the one-time Supabase Auth user and `admin_users` setup required to use `/admin`.
 
 ## Local verification
 

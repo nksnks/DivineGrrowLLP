@@ -77,11 +77,67 @@ const products = [
     tone: "from-[#26352b]/95",
   },
   {
-    name: "Cardamom",
+    name: "Green Cardamom",
     latin: "Elettaria cardamomum",
     description: "Handpicked pods chosen for freshness, aroma, and visual consistency.",
     image: "/assets/product-cardamom.webp",
     tone: "from-[#486948]/90",
+  },
+  {
+    name: "Clove",
+    latin: "Syzygium aromaticum",
+    description: "Aromatic whole cloves with deep colour, warm flavour, and export-ready cleanliness.",
+    image: "/assets/product-clove.webp",
+    tone: "from-[#38251f]/95",
+  },
+  {
+    name: "Cinnamon",
+    latin: "Cinnamomum verum",
+    description: "Fragrant cinnamon quills selected for natural sweetness, clean aroma, and consistency.",
+    image: "/assets/product-cinnamon.webp",
+    tone: "from-[#7a3f23]/90",
+  },
+  {
+    name: "Nutmeg",
+    latin: "Myristica fragrans",
+    description: "Whole nutmeg with a rich warm profile for bakery, beverage, and savoury applications.",
+    image: "/assets/product-nutmeg.webp",
+    tone: "from-[#6d4d32]/90",
+  },
+  {
+    name: "Saffron",
+    latin: "Crocus sativus",
+    description: "Carefully selected crimson threads with distinctive colour, aroma, and delicate flavour.",
+    image: "/assets/product-saffron.webp",
+    tone: "from-[#9a351f]/90",
+  },
+  {
+    name: "Mace (Javitri)",
+    latin: "Myristica fragrans aril",
+    description: "Bright lace-like mace blades with an elegant aroma for premium culinary formulations.",
+    image: "/assets/product-mace.webp",
+    tone: "from-[#a53b20]/90",
+  },
+  {
+    name: "Fox Nut (Makhana)",
+    latin: "Euryale ferox",
+    description: "Light, clean, and carefully graded lotus seeds for snack, wellness, and food applications.",
+    image: "/assets/product-fox-nut.webp",
+    tone: "from-[#8d806a]/70",
+  },
+  {
+    name: "Flattened Rice (Poha)",
+    latin: "Oryza sativa",
+    description: "Clean, even rice flakes prepared for dependable texture across everyday food applications.",
+    image: "/assets/product-poha.webp",
+    tone: "from-[#9a885e]/65",
+  },
+  {
+    name: "Star Anise",
+    latin: "Illicium verum",
+    description: "Distinctive star-shaped pods with a naturally sweet aroma and bold visual character.",
+    image: "/assets/product-star-anise.webp",
+    tone: "from-[#3d3525]/95",
   },
 ];
 
@@ -138,38 +194,82 @@ function AppLogo({ dark = false }: { dark?: boolean }) {
   );
 }
 
-function InquiryForm({ compact = false }: { compact?: boolean }) {
+async function saveInquiry(values: Record<string, FormDataEntryValue>, inquiryType: "contact" | "quote") {
+  if (!supabase) return null;
+  const { error } = await supabase.from("inquiries").insert({
+    inquiry_type: inquiryType,
+    name: String(values.name ?? ""),
+    company: values.company ? String(values.company) : null,
+    country: values.country ? String(values.country) : null,
+    business_type: values.businessType ? String(values.businessType) : null,
+    email: String(values.email ?? ""),
+    phone: values.phone ? String(values.phone) : null,
+    product: values.product ? String(values.product) : null,
+    quantity: values.quantity ? String(values.quantity) : null,
+    message: values.message ? String(values.message) : null,
+    consented_at: new Date().toISOString(),
+  });
+  return error;
+}
+
+function SuccessMessage({ quote = false, onReset }: { quote?: boolean; onReset: () => void }) {
+  return (
+    <div className="flex min-h-[360px] flex-col items-center justify-center rounded-[1.5rem] border border-[#d7c49d] bg-[#fffaf0] p-8 text-center">
+      <span className="grid size-16 place-items-center rounded-full bg-[#dfead4] text-[#2e613c]"><CheckCircle2 className="size-8" /></span>
+      <p className="mt-6 font-display text-3xl text-[#1d3327]">{quote ? "Quote request received." : "Message received."}</p>
+      <p className="mt-3 max-w-sm text-sm leading-6 text-[#6e6a5e]">{quote ? "Our trade desk will review your requirements and reply with availability, pricing, and shipping options." : "Thank you for reaching out. A member of our team will respond within one business day."}</p>
+      <button onClick={onReset} className="mt-7 text-xs font-bold uppercase tracking-[0.15em] text-[#9f6925] underline underline-offset-4">Send another message</button>
+    </div>
+  );
+}
+
+function ContactForm() {
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    const error = await saveInquiry(Object.fromEntries(new FormData(event.currentTarget).entries()), "contact");
+    setSubmitting(false);
+    if (error) {
+      toast.error("We could not send your message.", { description: "Please try again or contact us directly." });
+      return;
+    }
+    setSubmitted(true);
+    toast.success("Your message has been sent.", { description: "We will respond within one business day." });
+  }
+
+  if (submitted) return <SuccessMessage onReset={() => setSubmitted(false)} />;
+
+  return (
+    <form onSubmit={handleSubmit} className="rounded-[1.5rem] border border-white/15 bg-white p-5 text-[#1d3327] shadow-[0_24px_70px_rgba(9,23,17,0.14)] sm:p-7 lg:p-8">
+      <div className="mb-6"><p className="font-display text-2xl">Send us a message</p><p className="mt-1 text-xs leading-5 text-[#7e7869]">A simple way to reach our team directly.</p></div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="field-label">Name*<input required name="name" type="text" placeholder="Your name" /></label>
+        <label className="field-label">Mobile number*<input required name="phone" type="tel" placeholder="+ country code" /></label>
+        <label className="field-label sm:col-span-2">Email address*<input required name="email" type="email" placeholder="you@company.com" /></label>
+      </div>
+      <label className="field-label mt-4">Message*<textarea required name="message" rows={5} placeholder="How can we help?" /></label>
+      <button type="submit" disabled={submitting} className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#1e3b2a] px-6 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:bg-[#2a5139] active:scale-[0.98] disabled:cursor-wait disabled:opacity-70">{submitting ? "Sending message…" : "Send message"} {!submitting && <ArrowUpRight className="size-4 text-[#d9ac5d]" />}</button>
+    </form>
+  );
+}
+
+function QuoteForm({ compact = false }: { compact?: boolean }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const form = event.currentTarget;
-    const values = Object.fromEntries(new FormData(form).entries());
-
-    if (supabase) {
-      setSubmitting(true);
-      const { error } = await supabase.from("inquiries").insert({
-        name: String(values.name ?? ""),
-        company: String(values.company ?? ""),
-        country: String(values.country ?? ""),
-        business_type: values.businessType ? String(values.businessType) : null,
-        email: String(values.email ?? ""),
-        phone: values.phone ? String(values.phone) : null,
-        product: values.product ? String(values.product) : null,
-        quantity: values.quantity ? String(values.quantity) : null,
-        message: values.message ? String(values.message) : null,
-        consented_at: new Date().toISOString(),
-      });
-
-      setSubmitting(false);
-      if (error) {
-        toast.error("We could not send your enquiry.", {
-          description: "Please try again or contact us directly by WhatsApp or email.",
-        });
-        return;
-      }
+    const values = Object.fromEntries(new FormData(event.currentTarget).entries());
+    setSubmitting(true);
+    const error = await saveInquiry(values, "quote");
+    setSubmitting(false);
+    if (error) {
+      toast.error("We could not send your quote request.", { description: "Please try again or contact us directly by WhatsApp or email." });
+      return;
     }
 
     setSubmitted(true);
@@ -180,12 +280,7 @@ function InquiryForm({ compact = false }: { compact?: boolean }) {
 
   if (submitted) {
     return (
-      <div className={`flex min-h-[420px] flex-col items-center justify-center rounded-[1.5rem] border border-[#d7c49d] bg-[#fffaf0] p-8 text-center ${compact ? "min-h-[360px]" : ""}`}>
-        <span className="grid size-16 place-items-center rounded-full bg-[#dfead4] text-[#2e613c]"><CheckCircle2 className="size-8" /></span>
-        <p className="mt-6 font-display text-3xl text-[#1d3327]">Enquiry received.</p>
-        <p className="mt-3 max-w-sm text-sm leading-6 text-[#6e6a5e]">Our team will review your requirements and get back with availability, pricing, and the right shipping options.</p>
-        <button onClick={() => setSubmitted(false)} className="mt-7 text-xs font-bold uppercase tracking-[0.15em] text-[#9f6925] underline underline-offset-4">Send another enquiry</button>
-      </div>
+      <SuccessMessage quote onReset={() => setSubmitted(false)} />
     );
   }
 
@@ -205,7 +300,7 @@ function InquiryForm({ compact = false }: { compact?: boolean }) {
         <label className="field-label">Business type<select name="businessType" defaultValue=""><option value="" disabled>Select one</option><option>Importer</option><option>Distributor</option><option>Food manufacturer</option><option>Retailer</option><option>Wholesaler</option></select></label>
         <label className="field-label">Email address*<input required name="email" type="email" placeholder="you@company.com" /></label>
         <label className="field-label">Phone number<input name="phone" type="tel" placeholder="+ country code" /></label>
-        <label className="field-label">Product interested in<select name="product" defaultValue=""><option value="" disabled>Choose a spice</option><option>Turmeric</option><option>Red Chilli</option><option>Cumin Seeds</option><option>Coriander Seeds</option><option>Black Pepper</option><option>Cardamom</option><option>Multiple products</option></select></label>
+        <label className="field-label">Product interested in<select name="product" defaultValue=""><option value="" disabled>Choose a product</option>{products.map((product) => <option key={product.name}>{product.name}</option>)}<option>Multiple products</option></select></label>
         <label className="field-label">Estimated quantity<input name="quantity" type="text" placeholder="e.g. 5 MT / month" /></label>
       </div>
       <label className="field-label mt-4">Message<textarea name="message" rows={compact ? 3 : 4} placeholder="Tell us about grade, packaging, destination, or timing." /></label>
@@ -316,7 +411,7 @@ export default function Home() {
               <p className="max-w-xs text-sm leading-6 text-[#777266] sm:text-right">Selected for colour, aroma, purity, and consistency across every application.</p>
             </div>
             <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((product, index) => <a href="#quote" key={product.name} className="product-card group"><div className="relative aspect-[1.15] overflow-hidden"><img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><div className={`absolute inset-0 bg-gradient-to-t ${product.tone} via-transparent to-transparent opacity-80`} /><div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5"><div><p className="text-[0.62rem] font-bold uppercase tracking-[0.15em] text-white/70">0{index + 1} · {product.latin}</p><h3 className="mt-1 font-display text-2xl text-white">{product.name}</h3></div><span className="grid size-9 place-items-center rounded-full border border-white/35 bg-white/10 text-white backdrop-blur-sm transition group-hover:bg-[#d5a049] group-hover:text-[#1d3327]"><ArrowUpRight className="size-4" /></span></div></div><div className="bg-[#fffaf0] px-5 py-4"><p className="text-sm leading-6 text-[#777266]">{product.description}</p></div></a>)}
+              {products.map((product, index) => <a href="#quote" key={product.name} className="product-card group"><div className="relative aspect-[1.15] overflow-hidden"><img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><div className={`absolute inset-0 bg-gradient-to-t ${product.tone} via-transparent to-transparent opacity-80`} /><div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5"><div><p className="text-[0.62rem] font-bold uppercase tracking-[0.15em] text-white/70">{String(index + 1).padStart(2, "0")} · {product.latin}</p><h3 className="mt-1 font-display text-2xl text-white">{product.name}</h3></div><span className="grid size-9 place-items-center rounded-full border border-white/35 bg-white/10 text-white backdrop-blur-sm transition group-hover:bg-[#d5a049] group-hover:text-[#1d3327]"><ArrowUpRight className="size-4" /></span></div></div><div className="bg-[#fffaf0] px-5 py-4"><p className="text-sm leading-6 text-[#777266]">{product.description}</p></div></a>)}
             </div>
             <div className="mt-9 flex justify-center"><a href="#quote" className="inline-flex items-center gap-3 rounded-full border border-[#a99b80] px-6 py-3 text-xs font-bold uppercase tracking-[0.13em] text-[#344536] transition-colors hover:border-[#9f6925] hover:bg-[#fffaf0]">Explore complete product catalogue <ArrowUpRight className="size-4 text-[#9f6925]" /></a></div>
           </div>
@@ -357,11 +452,11 @@ export default function Home() {
 
         <section id="quote" className="quote-section relative overflow-hidden bg-[#d9c08a] py-16 sm:py-24">
           <div className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-multiply" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1800&q=80')" }} /><div className="absolute inset-0 bg-[linear-gradient(100deg,#c29b50_0%,#d9c08a_48%,rgba(217,192,138,0.7)_100%)]" />
-          <div className="container relative"><div className="grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20"><div className="max-w-lg"><SectionEyebrow>Start a conversation</SectionEyebrow><h2 className="section-title mt-5">Looking for a reliable <em>spice supplier?</em></h2><p className="mt-6 text-base leading-7 text-[#5d5748]">Partner with DivineGrow LLP for quality-driven sourcing, wholesale supply solutions, and a relationship built to last.</p><div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-[0.68rem] font-bold uppercase tracking-[0.1em] text-[#4d5547]"><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Export quality</span><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Competitive pricing</span><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Reliable deliveries</span><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Global reach</span></div></div><InquiryForm compact /></div></div>
+          <div className="container relative"><div className="grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20"><div className="max-w-lg"><SectionEyebrow>Start a conversation</SectionEyebrow><h2 className="section-title mt-5">Looking for a reliable <em>spice supplier?</em></h2><p className="mt-6 text-base leading-7 text-[#5d5748]">Partner with DivineGrow LLP for quality-driven sourcing, wholesale supply solutions, and a relationship built to last.</p><div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-[0.68rem] font-bold uppercase tracking-[0.1em] text-[#4d5547]"><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Export quality</span><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Competitive pricing</span><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Reliable deliveries</span><span className="inline-flex items-center gap-2"><Check className="size-3.5 text-[#1e3b2a]" /> Global reach</span></div></div><QuoteForm compact /></div></div>
         </section>
 
         <section id="contact" className="section-pad bg-[#1e3b2a] text-white">
-          <div className="container"><div className="grid gap-14 lg:grid-cols-[0.78fr_1.22fr] lg:gap-24"><div><SectionEyebrow light>Contact DivineGrow</SectionEyebrow><h2 className="section-title mt-5 text-white">Let&apos;s grow <em className="text-[#d9b261]">together.</em></h2><p className="mt-6 max-w-md text-base leading-7 text-white/60">Whether you are an importer, distributor, wholesaler, retailer, or food manufacturer, our team is ready to support your next sourcing requirement.</p><div className="mt-9 space-y-5"><a href="https://www.google.com/maps/search/?api=1&query=DivineGrow+LLP+Dwarka+New+Delhi" target="_blank" rel="noreferrer" className="contact-row"><MapPin className="size-5 text-[#d9b261]" /><span>#397, Sector-1B, Phase-2, Dwarka,<br />New Delhi, India</span></a><a href="mailto:cemde.pankaj@gmail.com" className="contact-row"><Mail className="size-5 text-[#d9b261]" /><span>cemde.pankaj@gmail.com</span></a><a href="tel:+919810610262" className="contact-row"><Phone className="size-5 text-[#d9b261]" /><span>+91 98106 10262</span></a><a href="https://www.divinegrow.co.in" target="_blank" rel="noreferrer" className="contact-row"><Globe2 className="size-5 text-[#d9b261]" /><span>www.divinegrow.co.in</span></a></div><div className="mt-9 border-t border-white/15 pt-6"><div className="flex items-start gap-3"><Clock3 className="mt-0.5 size-4 text-[#d9b261]" /><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-white/80">Business hours</p><p className="mt-1 text-sm text-white/55">Monday — Saturday · 9:00 AM — 6:00 PM IST</p></div></div></div><div className="mt-8 grid gap-2 text-sm text-white/60 sm:grid-cols-2"><p className="col-span-full mb-1 text-xs font-bold uppercase tracking-[0.14em] text-white/80">Why contact us?</p>{['Request product catalogue', 'Get bulk pricing', 'Private label packaging', 'Export documentation'].map((item) => <p key={item} className="flex items-center gap-2"><CheckCircle2 className="size-3.5 text-[#d9b261]" />{item}</p>)}</div></div><div><InquiryForm /><div className="mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/5 p-4 sm:flex-row"><p className="text-xs font-bold uppercase tracking-[0.14em] text-white/55">Prefer instant communication?</p><div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-white"><a href="https://wa.me/919810610262" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 transition-colors hover:text-[#d9b261]"><MessageCircle className="size-4 text-[#6dc38b]" /> WhatsApp us</a><a href="mailto:cemde.pankaj@gmail.com" className="inline-flex items-center gap-1.5 transition-colors hover:text-[#d9b261]"><Mail className="size-4 text-[#d9b261]" /> Email us</a><a href="tel:+919810610262" className="inline-flex items-center gap-1.5 transition-colors hover:text-[#d9b261]"><Phone className="size-4 text-[#d9b261]" /> Schedule a call</a></div></div></div></div></div>
+          <div className="container"><div className="grid gap-14 lg:grid-cols-[0.78fr_1.22fr] lg:gap-24"><div><SectionEyebrow light>Contact DivineGrow</SectionEyebrow><h2 className="section-title mt-5 text-white">Let&apos;s grow <em className="text-[#d9b261]">together.</em></h2><p className="mt-6 max-w-md text-base leading-7 text-white/60">Whether you are an importer, distributor, wholesaler, retailer, or food manufacturer, our team is ready to support your next sourcing requirement.</p><div className="mt-9 space-y-5"><a href="https://www.google.com/maps/search/?api=1&query=DivineGrow+LLP+Dwarka+New+Delhi" target="_blank" rel="noreferrer" className="contact-row"><MapPin className="size-5 text-[#d9b261]" /><span>#397, Sector-1B, Phase-2, Dwarka,<br />New Delhi, India</span></a><a href="mailto:cemde.pankaj@gmail.com" className="contact-row"><Mail className="size-5 text-[#d9b261]" /><span>cemde.pankaj@gmail.com</span></a><a href="tel:+919810610262" className="contact-row"><Phone className="size-5 text-[#d9b261]" /><span>+91 98106 10262</span></a><a href="https://www.divinegrow.co.in" target="_blank" rel="noreferrer" className="contact-row"><Globe2 className="size-5 text-[#d9b261]" /><span>www.divinegrow.co.in</span></a></div><div className="mt-9 border-t border-white/15 pt-6"><div className="flex items-start gap-3"><Clock3 className="mt-0.5 size-4 text-[#d9b261]" /><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-white/80">Business hours</p><p className="mt-1 text-sm text-white/55">Monday — Saturday · 9:00 AM — 6:00 PM IST</p></div></div></div><div className="mt-8 grid gap-2 text-sm text-white/60 sm:grid-cols-2"><p className="col-span-full mb-1 text-xs font-bold uppercase tracking-[0.14em] text-white/80">Why contact us?</p>{['Request product catalogue', 'Get bulk pricing', 'Private label packaging', 'Export documentation'].map((item) => <p key={item} className="flex items-center gap-2"><CheckCircle2 className="size-3.5 text-[#d9b261]" />{item}</p>)}</div></div><div><ContactForm /><div className="mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/5 p-4 sm:flex-row"><p className="text-xs font-bold uppercase tracking-[0.14em] text-white/55">Prefer instant communication?</p><div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-white"><a href="https://wa.me/919810610262" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 transition-colors hover:text-[#d9b261]"><MessageCircle className="size-4 text-[#6dc38b]" /> WhatsApp us</a><a href="mailto:cemde.pankaj@gmail.com" className="inline-flex items-center gap-1.5 transition-colors hover:text-[#d9b261]"><Mail className="size-4 text-[#d9b261]" /> Email us</a><a href="tel:+919810610262" className="inline-flex items-center gap-1.5 transition-colors hover:text-[#d9b261]"><Phone className="size-4 text-[#d9b261]" /> Schedule a call</a></div></div></div></div></div>
         </section>
 
         <section className="map-section bg-[#f3eee3] py-5"><div className="container"><div className="overflow-hidden rounded-[1.25rem] border border-[#d8cdb5] bg-[#e5e6df] shadow-[0_16px_45px_rgba(37,53,39,0.08)]"><iframe title="DivineGrow LLP location in Dwarka, New Delhi" src="https://www.google.com/maps?q=%23397%2C%20Sector-1B%2C%20Phase-2%2C%20Dwarka%2C%20New%20Delhi&output=embed" className="h-[280px] w-full grayscale-[0.25] sm:h-[330px]" loading="lazy" /></div></div></section>
