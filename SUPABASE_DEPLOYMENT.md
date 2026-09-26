@@ -1,43 +1,53 @@
 # DivineGrow LLP — Supabase deployment
 
-The repository now contains an idempotent Supabase migration and a GitHub Actions workflow. After the one-time secret setup, every push to `main` that changes `supabase/` automatically links the project and applies pending migrations.
+The repository contains idempotent Supabase migrations and a GitHub Actions workflow. After one-time secret setup, every push to `main` that changes `supabase/` automatically links the project and applies pending migrations.
+
+For the complete procedure, read `START_HERE.md`.
 
 ## One-time GitHub configuration
 
-Add these **Actions secrets** in the repository settings:
+Add these **Actions secrets** in repository settings:
 
 | Secret | Value |
 | --- | --- |
-| `SUPABASE_ACCESS_TOKEN` | A Supabase personal access token used only by GitHub Actions |
-| `SUPABASE_PROJECT_REF` | The project reference from the Supabase project URL |
-| `SUPABASE_DB_PASSWORD` | The database password for that Supabase project |
+| `SUPABASE_ACCESS_TOKEN` | Supabase personal access token used only by GitHub Actions |
+| `SUPABASE_PROJECT_REF` | Project reference from the Supabase project URL |
+| `SUPABASE_DB_PASSWORD` | Database password for that Supabase project |
 
-Add these **Actions variables** for the frontend build/deploy workflow, or equivalent build environment variables:
+Frontend variables are configured in Cloudflare Pages, not as private GitHub secrets:
 
 | Variable | Value |
 | --- | --- |
 | `VITE_SUPABASE_URL` | `https://<project-ref>.supabase.co` |
-| `VITE_SUPABASE_ANON_KEY` | The public anon key from Supabase API settings |
+| `VITE_SUPABASE_ANON_KEY` | Public anon/publishable key from Supabase API settings |
 
-The anon key is safe for browser use when Row Level Security is enabled. Do not expose `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, or a Supabase service-role key to the frontend.
+The anon key is safe for browser use when Row Level Security is enabled. Do not expose `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, or a service-role key to the frontend.
 
-## What is automated
+## What the migrations create
 
-`supabase/migrations/20260922220000_create_inquiries.sql` creates the `public.inquiries` table, indexes, validation checks, and a restrictive Row Level Security policy. `supabase/migrations/20260926170000_contact_and_admin.sql` separates `contact` and `quote` submissions, creates the `admin_users` allow-list, and permits only approved Supabase Auth admins to read or update enquiries. Anonymous visitors can insert new enquiries but cannot read or modify buyer data.
+- `20260922220000_create_inquiries.sql` creates the base `public.inquiries` table and RLS.
+- `20260926170000_contact_and_admin.sql` adds `inquiry_type`, allows simple Contact records without company/country, creates `public.admin_users`, and gives approved admins read/update access.
 
-`scripts/deploy-supabase.sh` is safe to rerun. It links the project and executes `supabase db push --linked --yes`, so only unapplied migrations are applied.
+Public users can insert only new Contact or Quote records. Approved admins can read and update records through the portal.
 
-The quote form uses the public Supabase client when `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are available. If those variables are absent in a local preview, the form retains its existing confirmation-only behavior rather than failing to render.
-
-See `ADMIN_PORTAL.md` for the one-time Supabase Auth user and `admin_users` setup required to use `/admin`.
-
-## Local verification
+## Local migration command
 
 ```bash
 SUPABASE_ACCESS_TOKEN=... \
 SUPABASE_PROJECT_REF=... \
 SUPABASE_DB_PASSWORD=... \
-bash scripts/deploy-supabase.sh
+pnpm db:deploy
 ```
 
-For production, use the GitHub Actions workflow instead of storing secrets in a local shell history.
+For production, use the GitHub Actions workflow instead of placing secrets in local shell history.
+
+## Admin setup
+
+After migrations complete, create a user under Supabase **Authentication → Users**, then add that user's UUID to `public.admin_users`:
+
+```sql
+insert into public.admin_users (user_id, display_name)
+values ('PASTE_USER_UUID_HERE', 'DivineGrow Admin');
+```
+
+See `ADMIN_PORTAL.md` for portal behavior and security details.
