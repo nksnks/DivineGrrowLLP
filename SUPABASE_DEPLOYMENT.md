@@ -4,6 +4,8 @@ The repository contains idempotent Supabase migrations and a GitHub Actions work
 
 For the complete procedure, read `START_HERE.md`.
 
+For Gmail notification setup, read `GMAIL_NOTIFICATIONS.md`. Supabase stores each record first, then a Database Webhook calls the protected `notify-inquiry` Edge Function, which sends the email through Gmail OAuth.
+
 ## One-time GitHub configuration
 
 Add these **Actions secrets** in repository settings:
@@ -51,3 +53,5 @@ values ('PASTE_USER_UUID_HERE', 'DivineGrow Admin');
 ```
 
 See `ADMIN_PORTAL.md` for portal behavior and security details.
+
+The registered office address is **#397, Sector-18B, Phase-2, Dwarka, New Delhi-110078**.

@@ -12,6 +12,7 @@ This package contains the complete DivineGrow LLP React/Vite website, local prod
 - WhatsApp, email, phone, business hours, export-market, and quality sections.
 - Supabase persistence for Contact and Quote submissions.
 - Protected Supabase Auth admin portal for reading and updating enquiries.
+- Gmail notification delivery for every new enquiry through a protected Supabase Edge Function.
 - Cloudflare Pages SPA fallback and security headers.
 - GitHub Actions workflow that applies Supabase migrations automatically.
 
@@ -22,6 +23,8 @@ The website is a static React frontend hosted by **Cloudflare Pages**.
 The database is **Supabase PostgreSQL**. Cloudflare Pages does not run the database migration. GitHub Actions runs `scripts/deploy-supabase.sh` when migration files change on `main`.
 
 The browser uses only the Supabase URL and public anon key. The Supabase access token, database password, and service-role key must never be added to Cloudflare Pages or frontend code.
+
+The published registered office address is **#397, Sector-18B, Phase-2, Dwarka, New Delhi-110078**.
 
 ## 3. Requirements
 
@@ -231,6 +234,8 @@ After Cloudflare deploys and the Supabase migration succeeds:
 7. Refresh the page and confirm the status remains saved.
 8. Confirm the WhatsApp, email, phone, and Google Maps links open correctly.
 
+For Gmail OAuth, Supabase Function Secrets, the `notify-inquiry` Edge Function, Database Webhook setup, and Gmail troubleshooting, follow `GMAIL_NOTIFICATIONS.md`.
+
 ## 11. Troubleshooting
 
 ### Cloudflare says `wrangler: command not found`
@@ -318,4 +323,9 @@ pnpm db:deploy
 - [ ] Contact test submission verified.
 - [ ] Quote test submission verified.
 - [ ] Admin status update verified.
+- [ ] Gmail API enabled and OAuth refresh token created.
+- [ ] Gmail secrets added to Supabase Edge Functions.
+- [ ] `notify-inquiry` function deployed.
+- [ ] Supabase Database Webhook enabled for `public.inquiries` INSERT.
+- [ ] Gmail notification received at `cemde.pankaj@gmail.com`.
 - [ ] WhatsApp, email, phone, and Maps links verified.

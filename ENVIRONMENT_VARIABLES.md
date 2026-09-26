@@ -23,6 +23,21 @@ Set these in GitHub under **Settings → Secrets and variables → Actions → S
 
 These values are used only by `.github/workflows/database-migrate.yml`. Never copy them into Cloudflare Pages variables or frontend source code.
 
+## Supabase Edge Function secrets — private Gmail notification path
+
+Set these in Supabase Dashboard under **Edge Functions → Secrets**:
+
+| Name | Purpose |
+| --- | --- |
+| `GMAIL_CLIENT_ID` | Google OAuth client ID |
+| `GMAIL_CLIENT_SECRET` | Google OAuth client secret |
+| `GMAIL_REFRESH_TOKEN` | Offline Gmail OAuth refresh token |
+| `GMAIL_FROM_EMAIL` | Authorized Gmail sender address |
+| `NOTIFY_TO_EMAIL` | Notification recipient: `cemde.pankaj@gmail.com` |
+| `DIVINEGROW_WEBHOOK_SECRET` | Shared secret used by the Supabase Database Webhook |
+
+These secrets are read only by `supabase/functions/notify-inquiry/index.ts`. Do not place them in GitHub source, Cloudflare Pages variables, or React code. See `GMAIL_NOTIFICATIONS.md` for OAuth and webhook setup.
+
 ## Local development
 
 For local testing, export the same two public `VITE_SUPABASE_*` variables in your shell or use a local `.env.local` file. Do not commit `.env.local`.

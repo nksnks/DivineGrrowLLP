@@ -55,6 +55,10 @@ The Contact form inserts `inquiry_type = 'contact'` with name, phone, email, and
 
 The `/admin` portal uses Supabase Auth and only allows users listed in `public.admin_users` to view or update enquiries. See `ADMIN_PORTAL.md`.
 
+New rows also trigger the `notify-inquiry` Supabase Edge Function through a Database Webhook. That function sends the full enquiry to `cemde.pankaj@gmail.com` through Gmail OAuth. Gmail secrets are stored in Supabase Edge Function Secrets, never in Cloudflare Pages. See `GMAIL_NOTIFICATIONS.md` for the exact setup.
+
+The registered office address shown on the website is **#397, Sector-18B, Phase-2, Dwarka, New Delhi-110078**.
+
 ## Troubleshooting
 
 - If Cloudflare reports `wrangler: command not found`, use `pnpm build` as the build command.
