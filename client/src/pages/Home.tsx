@@ -14,6 +14,7 @@ import {
   Globe2,
   Handshake,
   Leaf,
+  Loader2,
   Mail,
   MapPin,
   Menu,
@@ -214,9 +215,10 @@ async function saveInquiry(values: Record<string, FormDataEntryValue>, inquiryTy
 
 function SuccessMessage({ quote = false, onReset }: { quote?: boolean; onReset: () => void }) {
   return (
-    <div className="flex min-h-[360px] flex-col items-center justify-center rounded-[1.5rem] border border-[#d7c49d] bg-[#fffaf0] p-8 text-center">
+    <div role="status" aria-live="polite" className="flex min-h-[360px] flex-col items-center justify-center rounded-[1.5rem] border border-[#d7c49d] bg-[#fffaf0] p-8 text-center">
       <span className="grid size-16 place-items-center rounded-full bg-[#dfead4] text-[#2e613c]"><CheckCircle2 className="size-8" /></span>
-      <p className="mt-6 font-display text-3xl text-[#1d3327]">{quote ? "Quote request received." : "Message received."}</p>
+      <p className="mt-6 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[#8f6b35]">Confirmation saved</p>
+      <p className="mt-2 font-display text-3xl text-[#1d3327]">{quote ? "Quote request received." : "Message received."}</p>
       <p className="mt-3 max-w-sm text-sm leading-6 text-[#6e6a5e]">{quote ? "Our trade desk will review your requirements and reply with availability, pricing, and shipping options." : "Thank you for reaching out. A member of our team will respond within one business day."}</p>
       <button onClick={onReset} className="mt-7 text-xs font-bold uppercase tracking-[0.15em] text-[#9f6925] underline underline-offset-4">Send another message</button>
     </div>
@@ -251,7 +253,8 @@ function ContactForm() {
         <label className="field-label sm:col-span-2">Email address*<input required name="email" type="email" placeholder="you@company.com" /></label>
       </div>
       <label className="field-label mt-4">Message*<textarea required name="message" rows={5} placeholder="How can we help?" /></label>
-      <button type="submit" disabled={submitting} className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#1e3b2a] px-6 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:bg-[#2a5139] active:scale-[0.98] disabled:cursor-wait disabled:opacity-70">{submitting ? "Sending message…" : "Send message"} {!submitting && <ArrowUpRight className="size-4 text-[#d9ac5d]" />}</button>
+      <button type="submit" disabled={submitting} aria-busy={submitting} className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#1e3b2a] px-6 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:bg-[#2a5139] active:scale-[0.98] disabled:cursor-wait disabled:opacity-70">{submitting ? <><Loader2 className="size-4 animate-spin text-[#d9ac5d]" aria-hidden="true" /><span>Sending message…</span></> : <><span>Send message</span><ArrowUpRight className="size-4 text-[#d9ac5d]" /></>}</button>
+      {submitting && <p role="status" aria-live="polite" className="mt-3 text-center text-[0.68rem] font-semibold text-[#7e7869]">Sending your message securely…</p>}
     </form>
   );
 }
@@ -304,9 +307,10 @@ function QuoteForm({ compact = false }: { compact?: boolean }) {
         <label className="field-label">Estimated quantity<input name="quantity" type="text" placeholder="e.g. 5 MT / month" /></label>
       </div>
       <label className="field-label mt-4">Message<textarea name="message" rows={compact ? 3 : 4} placeholder="Tell us about grade, packaging, destination, or timing." /></label>
-      <button type="submit" disabled={submitting} className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#1e3b2a] px-6 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#2a5139] active:scale-[0.98] disabled:cursor-wait disabled:opacity-70">
-        {submitting ? "Sending enquiry…" : "Get a free quote"} {!submitting && <ArrowUpRight className="size-4 text-[#d9ac5d]" />}
+      <button type="submit" disabled={submitting} aria-busy={submitting} className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#1e3b2a] px-6 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#2a5139] active:scale-[0.98] disabled:cursor-wait disabled:opacity-70">
+        {submitting ? <><Loader2 className="size-4 animate-spin text-[#d9ac5d]" aria-hidden="true" /><span>Sending enquiry…</span></> : <><span>Get a free quote</span><ArrowUpRight className="size-4 text-[#d9ac5d]" /></>}
       </button>
+      {submitting && <p role="status" aria-live="polite" className="mt-3 text-center text-[0.68rem] font-semibold text-[#7e7869]">Sending your quote request securely…</p>}
       <p className="mt-3 text-center text-[0.65rem] leading-5 text-[#928a78]">By submitting, you agree to be contacted about your sourcing enquiry.</p>
     </form>
   );
